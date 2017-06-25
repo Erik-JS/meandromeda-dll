@@ -44,10 +44,22 @@ DWORD WINAPI Start(LPVOID lpParam)
     {
         logprintf(">>Error loading AnselSDK64.bak!\n");
         logEnd();
+        MessageBox(0, "Error loading AnselSDK64.bak!", "AnselSDK64 proxy DLL", 0);
         return 0;
     }
+    AllocConsole();
+    freopen("CON", "w", stdout);
+    printf("< < < ASI plugin feedback > > >\n");
     loadPlugins(".");
     loadPlugins("ASI");
+    if(getPluginCount() == 0)
+    {
+        FreeConsole();
+    }
+    else
+    {
+        SetConsoleTitle("ASI plugin feedback");
+    }
     logEnd();
     return 0;
 }

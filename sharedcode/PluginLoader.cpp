@@ -1,6 +1,8 @@
 #include "PluginLoader.h"
 #include "Logging.h"
 
+int PluginLoader_Count = 0;
+
 void loadPlugins(const char *folder)
 {
 	DWORD typeMask = 0x6973612e; // '.asi'
@@ -29,11 +31,19 @@ void loadPlugins(const char *folder)
 				strcat (currfile, fd.cFileName);
 				LoadLibrary(currfile);
 				if (LoadLibrary (currfile))
-					logprintf(">>Plugin loaded: %s\n", currfile);
+                {
+                    logprintf(">>Plugin loaded: %s\n", currfile);
+					PluginLoader_Count++;
+                }
 				else
 					logprintf(">>Plugin error: %s\n", currfile);
 			}
 		}
 	} while (FindNextFile (asiFile, &fd));
 	FindClose (asiFile);
+}
+
+int getPluginCount()
+{
+    return PluginLoader_Count;
 }

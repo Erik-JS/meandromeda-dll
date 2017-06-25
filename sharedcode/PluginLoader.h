@@ -4,5 +4,6 @@
 #include <windows.h>
 
 void loadPlugins(const char *folder);
+int getPluginCount();
 
 #endif
