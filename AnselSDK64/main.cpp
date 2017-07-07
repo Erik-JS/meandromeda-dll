@@ -5,6 +5,34 @@
 
 HINSTANCE originalAnselSDK64 = NULL;
 UINT64 p[22];
+BYTE bcrypcallpattern[] = {0xFF, 0x15, 0x00, 0x00, 0x00, 0x00, 0x48, 0x8B, 0x4C, 0x24, 0x40, 0x85, 0xC0};
+
+bool DataCompare(const BYTE* OpCodes, const BYTE* Mask, const char* StrMask)
+{
+	while (*StrMask)
+	{
+		if(*StrMask == 'x' && *OpCodes != *Mask )
+			return false;
+		++StrMask;
+		++OpCodes;
+		++Mask;
+	}
+	return true;
+}
+
+DWORD64 FindPattern(DWORD64 StartAddress, DWORD CodeLen, BYTE* Mask, const char* StrMask, unsigned short ignore)
+{
+	unsigned short Ign = 0;
+	DWORD i = 0;
+	while (Ign <= ignore)
+	{
+		if(DataCompare((BYTE*)(StartAddress + i++), Mask,StrMask))
+			++Ign;
+		else if (i>=CodeLen)
+			return 0;
+	}
+	return StartAddress + i - 1;
+}
 
 void loadOriginalAnselSDK64()
 {
@@ -36,6 +64,28 @@ void loadOriginalAnselSDK64()
 
 }
 
+NTSTATUS WINAPI FakeBCryptVerifySignature(BCRYPT_KEY_HANDLE hKey, VOID *pPaddingInfo, PUCHAR pbHash, ULONG cbHash, PUCHAR pbSignature, ULONG cbSignature, ULONG dwFlags)
+{
+    return (NTSTATUS)0;
+}
+
+void patchBCryptFunc()
+{
+    DWORD64 functioncall = FindPattern((DWORD64)GetModuleHandle(NULL), 0xF00000, bcrypcallpattern, "xx????xxxxxxx", 0);
+    if (!functioncall)
+    {
+        logprintf(">>BCryptVerifySignature: byte pattern not found.\n");
+        return;
+    }
+    int distance = *(int*)(functioncall + 2);
+    DWORD64 funcpointerlocation = functioncall + 6 + distance;
+    DWORD dwProtect;
+    VirtualProtect((void*)funcpointerlocation, 0x8, PAGE_READWRITE, &dwProtect );
+    *(DWORD64*)funcpointerlocation = (DWORD64)FakeBCryptVerifySignature;
+    VirtualProtect((void*)funcpointerlocation, 0x8, dwProtect, &dwProtect);
+    logprintf(">>BCryptVerifySignature: pointer to fake function has been written.\n");
+}
+
 DWORD WINAPI Start(LPVOID lpParam)
 {
     logStart("MEA_AnselSDK64.log");
@@ -47,6 +97,7 @@ DWORD WINAPI Start(LPVOID lpParam)
         MessageBox(0, "Error loading AnselSDK64.bak!", "AnselSDK64 proxy DLL", 0);
         return 0;
     }
+    patchBCryptFunc();
     AllocConsole();
     freopen("CON", "w", stdout);
     printf("< < < ASI plugin feedback > > >\n");
