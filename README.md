@@ -1,6 +1,6 @@
 # ASI Loader for Mass Effect: Andromeda
 
-**Last game version tested:** 1.08 (build 736146)
+**Last game version tested:** 1.09 (build 739369)
 
 -----------------------------------------------------------
 
