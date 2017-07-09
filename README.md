@@ -5,7 +5,9 @@
 -----------------------------------------------------------
 
 About ASI loader - original code by listener ([XLiveLess](http://gtaforums.com/topic/388658-relgtaiv-xliveless/))<br />
-The ASI loader allows for loading of DLL files without the need of a separate injector. These DLL files must be renamed to *.asi and put in the same folder of the game's executable or in a subfolder named "asi".
+The ASI loader allows for loading of custom-made DLL files without the need of a separate injector.<br />
+Such DLL files must be renamed to *.asi and put in a subfolder named *ASI* inside the game's root folder.<br />
+For testing purposes, the ASI loader will, alternatively, load plugins from the root if the *ASI* subfolder is missing or nothing was successfully loaded from there.
 
 **You may visit https://github.com/Erik-JS/MEA-ASI for plugins created by me.**
 
