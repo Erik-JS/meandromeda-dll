@@ -111,9 +111,9 @@ DWORD WINAPI Start(LPVOID lpParam)
     freopen("CON", "w", stdout);
     printf("< < < ASI plugin feedback > > >\n");
     loadPlugins("ASI");
-    if(getPluginCount() == 0)
+    if(GetPluginLoadCount() == 0)
         loadPlugins(".");
-    if(getPluginCount() == 0)
+    if(GetPluginLoadCount() == 0)
     {
         FreeConsole();
     }
